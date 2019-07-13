@@ -29,9 +29,25 @@ const storage = multer.diskStorage({
 });
 
 router.get('', (request, response, next) => {
-  Post.find()
+  const { query } = request;
+  let { pagesize, page: currentPage } = query;
+  pagesize = parseInt(pagesize);
+  currentPage = parseInt(currentPage);
+  let fetchedPosts;
+
+  const postQuery = Post.find();
+  if (pagesize && currentPage) {
+    postQuery
+      .skip(pagesize * (currentPage - 1))
+      .limit(pagesize);
+  }
+
+  postQuery.find()
     .then(documents => {
-      const posts = documents.map(post => {
+      fetchedPosts = documents;
+      return Post.count();
+    }).then(count => {
+      const posts = fetchedPosts.map(post => {
         const { _id, title, content, imagePath } = post;
 
         return {
@@ -44,7 +60,8 @@ router.get('', (request, response, next) => {
 
       response.status(200).json({
         message: 'success',
-        posts
+        posts,
+        maxPosts: count
       });
     });
 });
