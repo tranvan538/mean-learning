@@ -3,6 +3,7 @@ import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {PostsService} from '../posts.service';
 import {ActivatedRoute, ParamMap} from '@angular/router';
 import {Post} from '../post.model';
+import { mimeType } from './mime-type.validator';
 
 @Component({
   selector: 'app-post-create',
@@ -22,8 +23,7 @@ export class PostCreateComponent implements OnInit {
   ngOnInit(): void {
     this.form = new FormGroup({
       title: new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]}),
-      content: new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]}),
-      image: new FormControl(null, { validators: [Validators.required]})
+      content: new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]})
     });
 
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
@@ -63,10 +63,11 @@ export class PostCreateComponent implements OnInit {
     }
 
     this.isLoading = true;
+    const { title, content } = this.form.value;
     if (this.mode === 'create') {
-      this.postsService.addPost(this.form.value.title, this.form.value.content);
+      this.postsService.addPost(title, content);
     } else {
-      this.postsService.updatePost(this.postId, this.form.value.title, this.form.value.content);
+      this.postsService.updatePost(this.postId, title, content);
     }
 
     this.form.reset();
