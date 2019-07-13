@@ -8,6 +8,10 @@ module.exports = mongoose.model('Post', {
   content: {
     type: String,
     required: true
+  },
+  imagePath: {
+    type: String,
+    required: false
   }
 });
 

@@ -11,6 +11,10 @@ export const mimeType = (
   const fileReader = new FileReader();
   const frObs = Observable.create(
     (observer: Observer<{ [key: string]: any }>) => {
+      if (typeof control.value === 'string') {
+        return of(null);
+      }
+
       fileReader.addEventListener("loadend", () => {
         const arr = new Uint8Array(fileReader.result as ArrayBuffer).subarray(0, 4);
         let header = "";
