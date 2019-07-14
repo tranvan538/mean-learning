@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const postRouter = require('./routes/posts');
+const userRouter = require('./routes/user');
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb+srv://dinh:cV9nldLkCLej1mbk@cluster0-pi84c.gcp.mongodb.net/mean-course?retryWrites=true&w=majority')
@@ -25,6 +26,7 @@ app.use((request, response, next) => {
 });
 
 app.use('/api/posts', postRouter);
+app.use('/api/user', userRouter);
 
 
 app.listen(3000);
