@@ -10,6 +10,8 @@ const MIME_TYPE_MAP = {
 };
 
 const Post = require('../models/post');
+const checkAuth = require('../middleware/check-auth');
+
 const storage = multer.diskStorage({
   destination: (request, file, callback) => {
     console.dir(file);
@@ -78,7 +80,7 @@ router.get('/:id', (request, response, next) => {
   });
 });
 
-router.post('', multer({storage}).single('image'), (request, response, next) => {
+router.post('', checkAuth, multer({storage}).single('image'), (request, response, next) => {
   const url = request.protocol + '://' + request.get('host');
   const post = new Post({
     title: request.body.title,
@@ -101,7 +103,7 @@ router.post('', multer({storage}).single('image'), (request, response, next) => 
 
 });
 
-router.put('/:id', multer({storage}).single('image'), (request, response, next) => {
+router.put('/:id', checkAuth, multer({storage}).single('image'), (request, response, next) => {
   let imagePath = request.body.imagePath;
   if (request.file) {
     const url = request.protocol + '://' + request.get('host');
@@ -122,7 +124,7 @@ router.put('/:id', multer({storage}).single('image'), (request, response, next) 
 });
 
 
-router.delete('/:id', (request, response, next) => {
+router.delete('/:id', checkAuth, (request, response, next) => {
   Post.deleteOne({_id: request.params.id })
     .then(result => {
       response.status(200).json({
