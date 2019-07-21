@@ -33,15 +33,17 @@ router.post('/login', async (request, response, next) => {
     })
   }
 
+  const userId = user._id;
   const token = jwt.sign(
-    {email, userId: user._id},
+    {email, userId: userId},
     'secret_this_should_be_longer',
     { expiresIn: '1h' }
   );
 
   response.status(200).json({
     token,
-    expiresIn: 3600
+    expiresIn: 3600,
+    userId
   });
 });
 

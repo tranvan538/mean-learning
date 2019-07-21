@@ -50,13 +50,14 @@ router.get('', (request, response, next) => {
       return Post.count();
     }).then(count => {
       const posts = fetchedPosts.map(post => {
-        const { _id, title, content, imagePath } = post;
+        const { _id, title, content, imagePath, creator } = post;
 
         return {
           id: String(_id),
           title,
           content,
-          imagePath
+          imagePath,
+          creator
         }
       });
 
@@ -74,8 +75,8 @@ router.get('/:id', (request, response, next) => {
       return response.status(404).json({message: 'not found'});
     }
 
-    const { _id, title, content, imagePath } = postData;
-    const post  = {id: _id, title, content, imagePath};
+    const { _id, title, content, imagePath, creator } = postData;
+    const post  = {id: _id, title, content, imagePath, creator};
     response.status(200).json({message: 'Found', post: post});
   });
 });
@@ -85,7 +86,8 @@ router.post('', checkAuth, multer({storage}).single('image'), (request, response
   const post = new Post({
     title: request.body.title,
     content: request.body.content,
-    imagePath: url + '/images/' + request.file.filename
+    imagePath: url + '/images/' + request.file.filename,
+    creator: request.userData.userId
   });
 
   post.save().then(createdPost => {
@@ -103,7 +105,7 @@ router.post('', checkAuth, multer({storage}).single('image'), (request, response
 
 });
 
-router.put('/:id', checkAuth, multer({storage}).single('image'), (request, response, next) => {
+router.put('/:id', checkAuth, multer({storage}).single('image'), async (request, response, next) => {
   let imagePath = request.body.imagePath;
   if (request.file) {
     const url = request.protocol + '://' + request.get('host');
@@ -114,23 +116,26 @@ router.put('/:id', checkAuth, multer({storage}).single('image'), (request, respo
     _id: request.params.id,
     title: request.body.title,
     content: request.body.content,
-    imagePath
+    imagePath,
+    creator: request.userData.userId
   });
 
-  Post.updateOne({_id: request.params.id}, post)
-    .then(result => {
-      response.status(200).json({ message: 'success'});
-    })
+  const result = await Post.updateOne({_id: request.params.id, creator: request.userData.userId}, post);
+  if (result.n > 0) {
+    response.status(200).json({ message: 'success'});
+  }
+
+  response.status(401).json({ message: 'Not authorized'});
 });
 
 
-router.delete('/:id', checkAuth, (request, response, next) => {
-  Post.deleteOne({_id: request.params.id })
-    .then(result => {
-      response.status(200).json({
-        message: 'success'
-      });
-    })
+router.delete('/:id', checkAuth, async (request, response, next) => {
+  const result = await Post.deleteOne({_id: request.params.id, creator: request.userData.userId });
+  if (result.n > 0) {
+    response.status(200).json({ message: 'success'});
+  }
+
+  response.status(401).json({ message: 'Not authorized'});
 });
 
 module.exports = router;

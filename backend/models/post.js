@@ -12,6 +12,11 @@ module.exports = mongoose.model('Post', {
   imagePath: {
     type: String,
     required: false
+  },
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
 });
 
