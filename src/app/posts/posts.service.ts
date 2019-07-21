@@ -59,13 +59,13 @@ export class PostsService {
       postData = { id, title, content, imagePath: image };
     }
 
-    this.http.put("http://localhost:3000/api/posts/" + id, postData)
+    this.http.put('http://localhost:3000/api/posts/' + id, postData)
       .subscribe(response => {
         this.router.navigate(['/']);
       });
   }
 
   deletePost(postId: string) {
-    return this.http.delete("http://localhost:3000/api/posts/" + postId);
+    return this.http.delete('http://localhost:3000/api/posts/' + postId);
   }
 }
