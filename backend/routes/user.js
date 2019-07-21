@@ -39,7 +39,10 @@ router.post('/login', async (request, response, next) => {
     { expiresIn: '1h' }
   );
 
-  response.status(200).json({token});
+  response.status(200).json({
+    token,
+    expiresIn: 3600
+  });
 });
 
 module.exports = router;
