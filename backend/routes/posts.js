@@ -30,12 +30,11 @@ const storage = multer.diskStorage({
   }
 });
 
-router.get('', (request, response, next) => {
+router.get('', async (request, response, next) => {
   const { query } = request;
   let { pagesize, page: currentPage } = query;
   pagesize = parseInt(pagesize);
   currentPage = parseInt(currentPage);
-  let fetchedPosts;
 
   const postQuery = Post.find();
   if (pagesize && currentPage) {
@@ -44,44 +43,51 @@ router.get('', (request, response, next) => {
       .limit(pagesize);
   }
 
-  postQuery.find()
-    .then(documents => {
-      fetchedPosts = documents;
-      return Post.count();
-    }).then(count => {
-      const posts = fetchedPosts.map(post => {
-        const { _id, title, content, imagePath, creator } = post;
+  try {
+    const documents = await postQuery.find();
+    const count = Post.count();
+    const posts = documents.map(post => {
+      const { _id, title, content, imagePath, creator } = post;
 
-        return {
-          id: String(_id),
-          title,
-          content,
-          imagePath,
-          creator
-        }
-      });
-
-      response.status(200).json({
-        message: 'success',
-        posts,
-        maxPosts: count
-      });
+      return {
+        id: String(_id),
+        title,
+        content,
+        imagePath,
+        creator
+      }
     });
+
+    response.status(200).json({
+      message: 'success',
+      posts,
+      maxPosts: count
+    });
+  } catch(err) {
+    response.status(500).json({
+      message: 'Fetching posts failed'
+    });
+  }
 });
 
-router.get('/:id', (request, response, next) => {
-  Post.findById(request.params.id).then(postData => {
+router.get('/:id', async (request, response, next) => {
+  try {
+    const postData = await Post.findById(request.params.id);
     if (!postData) {
-      return response.status(404).json({message: 'not found'});
+      return response.status(404).json({message: 'Not found'});
     }
 
     const { _id, title, content, imagePath, creator } = postData;
     const post  = {id: _id, title, content, imagePath, creator};
     response.status(200).json({message: 'Found', post: post});
-  });
+  } catch(err) {
+    response.status(500).json({
+      message: 'Get post failed'
+    });
+  }
 });
 
-router.post('', checkAuth, multer({storage}).single('image'), (request, response, next) => {
+router.post('', checkAuth, multer({storage}).single('image'), async (request, response, next) => {
   const url = request.protocol + '://' + request.get('host');
   const post = new Post({
     title: request.body.title,
@@ -90,7 +96,8 @@ router.post('', checkAuth, multer({storage}).single('image'), (request, response
     creator: request.userData.userId
   });
 
-  post.save().then(createdPost => {
+  try {
+    const createdPost = await post.save();
     const {_id, title, content, imagePath} = createdPost;
     response.status(201).json({
       message: 'success',
@@ -101,8 +108,11 @@ router.post('', checkAuth, multer({storage}).single('image'), (request, response
         imagePath
       }
     });
-  });
-
+  } catch(err) {
+    response.status(500).json({
+      message: 'Creating a post failed!'
+    });
+  }
 });
 
 router.put('/:id', checkAuth, multer({storage}).single('image'), async (request, response, next) => {

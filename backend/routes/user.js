@@ -13,7 +13,9 @@ router.post('/signup', async (request, response, next) => {
     response.status(201).json({message: 'Success', result })
   } catch (err) {
     console.error(err);
-    response.status(500).json({err});
+    response.status(500).json({
+        message: 'Invalid authentication credentials!'
+    });
   }
 });
 
