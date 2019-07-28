@@ -15,8 +15,8 @@ class PostHandler {
     }
 
     try {
-      const documents = await postQuery.find();
-      const count = Post.count();
+      const documents = await postQuery;
+      const count = await Post.count();
       const posts = documents.map(post => {
         const {_id, title, content, imagePath, creator} = post;
 

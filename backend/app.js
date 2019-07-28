@@ -6,7 +6,7 @@ const postRouter = require('./routes/posts');
 const userRouter = require('./routes/user');
 
 const mongoose = require('mongoose');
-mongoose.connect('mongodb+srv://dinh:cV9nldLkCLej1mbk@cluster0-pi84c.gcp.mongodb.net/mean-course?retryWrites=true&w=majority')
+mongoose.connect(process.env.MONGO_ATLAS_CONNECTION_STRING)
   .then(() => {
     console.log('Connected to database');
   }).catch((error) => {

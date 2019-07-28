@@ -1,0 +1,6 @@
+{
+  "env": {
+    "MONGO_ATLAS_CONNECTION_STRING": "mongodb+srv://dinh:cV9nldLkCLej1mbk@cluster0-pi84c.gcp.mongodb.net/mean-course?retryWrites=true&w=majority",
+    "JWT_KEY": "secret_this_should_be_longer"
+  }
+}

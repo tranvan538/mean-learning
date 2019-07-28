@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 
+const { JWT_KEY } = process.env;
+
 class UserHandler {
   async createuser(request, response, next) {
     const {email, password} = request.body;
@@ -37,7 +39,7 @@ class UserHandler {
     const userId = user._id;
     const token = jwt.sign(
       {email, userId: userId},
-      'secret_this_should_be_longer',
+      JWT_KEY,
       {expiresIn: '1h'}
     );
 
